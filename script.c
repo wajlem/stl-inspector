@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define OK 0
+
 
 
 typedef struct
@@ -28,10 +28,10 @@ STL_triangle triangles;
 STL load_binary_model(char *file_path)
 {
 FILE *stl_file = fopen(file_path, "rb");
-if (file_path == NULL)
+if (stl_file== NULL)
 	{
 	fprintf(stderr, "Error opening file");
-	return -1;
+	return NULL;
 	}
 
 STL *model = malloc(sizeof(STL_model));
@@ -39,7 +39,7 @@ if (model == NULL)
 	{
 	fprintf(stderr, "Memory allocation failed");
 	fclose(stl_file);
-	return -1
+	return NULL;
 	}
 }
 
