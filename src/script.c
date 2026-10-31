@@ -133,6 +133,59 @@ double volume_calc(STL_model *model)
 
 }
 
+//defining vectors for bounding box function
+typedef struct
+{
+	vector min;
+	vector max;
+} bounding_box;
+
+bounding_box bounging_box_calc(STL_model *model)
+{
+//adding box with 2 vector
+	bounding_box box = {model->triangles[0].v1, model->triangles[0].v1};
+	
+//looking for every vector that is smallest and biggest
+	for(uint32_t i =0; i < model->triangle_count; i++)
+	{
+		vector a = model->triangles[i].v1;
+		vector b = model->triangles[i].v2;
+		vector c = model->triangles[i].v3;
+	
+		box.min.x = fminf(box.min.x, a.x);
+		box.min.x = fminf(box.min.x, b.x);
+		box.min.x = fminf(box.min.x, c.x);
+
+		box.min.y = fminf(box.min.y, a.y);
+		box.min.y = fminf(box.min.y, b.y);
+		box.min.y = fminf(box.min.y, c.y);
+
+		box.min.z = fminf(box.min.z, a.z);
+		box.min.z = fminf(box.min.z, b.z);
+		box.min.z = fminf(box.min.z, c.z);
+
+	
+		box.max.x = fmaxf(box.max.x, a.x);
+		box.max.x = fmaxf(box.max.x, b.x);
+		box.max.x = fmaxf(box.max.x, c.x);
+
+		box.max.y = fmaxf(box.max.y, a.y);
+		box.max.y = fmaxf(box.max.y, b.y);
+		box.max.y = fmaxf(box.max.y, c.y);
+
+		box.max.z = fmaxf(box.max.z, a.z);
+		box.max.z = fmaxf(box.max.z, b.z);
+		box.max.z = fmaxf(box.max.z, c.z);
+
+
+
+	}
+
+
+
+
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2)
