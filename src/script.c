@@ -197,12 +197,12 @@ int main(int argc, char **argv)
 
 //calculating a printing results
 	double volume = volume_calc(model);
-	printf("Volume is %f\n", volume);
-	printf("There are %u triangles\n", model->triangle_count);
+	printf("Volume is %f\n\n", volume);
+	printf("There are %u triangles\n\n", model->triangle_count);
 
-//
+// max - min --> cuz stl can be in negative coordinates
 	bounding_box box = bounding_box_calc(model);
-	printf("Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n", (box.max.x - box.min.x), (box.max.y - box.min.y), (box.max.z - box.min.z));
+	printf("Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n", (fabs)(box.max.x - box.min.x), (fabs)(box.max.y - box.min.y), (fabs)(box.max.z - box.min.z));
 
 
 //we dont want memory leak
