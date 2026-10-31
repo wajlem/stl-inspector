@@ -11,7 +11,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Surface Area          | :green_circle: |
 | Center of Mass        | :red_circle:   |
 | Watertight Check      | :red_circle:   |
-| Overhang Detection    | :red_circle:   |
+| Overhang Detection    | :green_circle: |
 ### use
 - git clone https://github.com/wajlem/stl-inspector
 - ./gcc script.c -o script -lm
