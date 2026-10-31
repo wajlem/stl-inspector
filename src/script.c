@@ -2,78 +2,94 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/*
+STL format is:
+80 bytes (text)
+4 bytes (num of triangles "uint32_t")
+50 bytes per triangle (normal (12), v1(12), v2(12), v3(12), some_attribute(2))
+*/
 
 #pragma pack(push,1)
+
+// point in 3d space
 typedef struct
 {
-float x;
-float y;
-float z;
+	float x;
+	float y;
+	float z;
 } vector;
 
+// ONE triangle 
 typedef struct
 {
-vector normal;
-vector v1;
-vector v2;
-vector v3;
-uint16_t added;
+	vector normal;
+	vector v1;
+	vector v2;
+	vector v3;
+	uint16_t added; //that random attribute, noneone uses it
 } triangle;
 #pragma pack(pop)
 
-
+// whole model in memory
 typedef struct
 {
-char header[80];
-uint32_t triangle_count;
-triangle *triangles;
+	char header[80];
+	uint32_t triangle_count; 
+	triangle *triangles; //dynamical array of triangles
 } STL_model;
 
+
+//loads whole binary model into memory
 STL_model *load_binary_model(char *file_path)
 {
-FILE *stl_file = fopen(file_path, "rb");
-if (stl_file== NULL)
+//opening file
+	FILE *stl_file = fopen(file_path, "rb");
+	if (stl_file== NULL)
+		{
+			fprintf(stderr, "Error opening file\n");
+			return NULL;
+		}
+
+//allocating memory for model
+	STL_model *model = malloc(sizeof(STL_model));
+	if (model == NULL)
 	{
-	fprintf(stderr, "Error opening file\n");
-	return NULL;
+		fprintf(stderr, "Memory allocation failed\n");
+		fclose(stl_file);
+		return NULL;
 	}
 
-STL_model *model = malloc(sizeof(STL_model));
-if (model == NULL)
-	{
-	fprintf(stderr, "Memory allocation failed\n");
-	fclose(stl_file);
-	return NULL;
-	}
-
-
-if (fread(model->header, 1, 80, stl_file) != 80)
+//checking header
+	if (fread(model->header, 1, 80, stl_file) != 80)
   {
-  fprintf(stderr, "Error reading header\n");
-  free(model);
-  fclose(stl_file);
-  return NULL;
+  	fprintf(stderr, "Error reading header\n");
+  	free(model);
+  	fclose(stl_file);
+  	return NULL;
   }
 
-if (fread(&model->triangle_count, sizeof(uint32_t), 1, stl_file) != 1)
+//checking triangles count
+	if (fread(&model->triangle_count, sizeof(uint32_t), 1, stl_file) != 1)
   {
-  fprintf(stderr, "Error reading triangle count\n");
-  free(model);
-  fclose(stl_file);
-  return NULL;
+  	fprintf(stderr, "Error reading triangle count\n");
+  	free(model);
+  	fclose(stl_file);
+  	return NULL;
   }
 
-model->triangles = malloc(model->triangle_count * sizeof(triangle));
-if (model->triangles == NULL)
+//allocating array for all triangles
+	model->triangles = malloc(model->triangle_count * sizeof(triangle));
+	if (model->triangles == NULL)
   {
-  fprintf(stderr, "Memory allocation failed\n");
-  free(model);
-  fclose(stl_file);
-  return NULL;
+  	fprintf(stderr, "Memory allocation failed\n");
+  	free(model);
+  	fclose(stl_file);
+  	return NULL;
   }
 
-if (fread(model->triangles, sizeof(triangle), model->triangle_count, stl_file)
-    != model->triangle_count)
+//reading all triangles 
+	if (fread(model->triangles, sizeof(triangle), model->triangle_count, stl_file)
+    != model->triangle_count) //magic thingy
   {
   fprintf(stderr, "Error reading triangles\n");
   free(model->triangles);
@@ -82,25 +98,35 @@ if (fread(model->triangles, sizeof(triangle), model->triangle_count, stl_file)
   return NULL;
   }
 
-fclose(stl_file);
-return model;
+//closes if it succeded
+	fclose(stl_file);
+	return model;
 }
+
+/*
+calculate volume of model (NEEDS to be watertight!)
+caltulating every triangle by some magic https://en.wikipedia.org/wiki/Tetrahedron
+*/
 
 double volume_calc(STL_model *model)
 {
+//double for precision in high polygon models
 	double volume = 0.0;
 
 	for (uint32_t i = 0; i < model->triangle_count; i++)
 	{
+
+//current vertice of triangle
 		vector a = model->triangles[i].v1;
 		vector b = model->triangles[i].v2;
 		vector c = model->triangles[i].v3;
 
-// Normal vector 
+// normal vector for point b and c
   	double new_vector_YZ = (double)b.y * c.z - (double)b.z * c.y;
   	double new_vector_XZ = (double)b.z * c.x - (double)b.x * c.z;
   	double new_vector_XY = (double)b.x * c.y - (double)b.y * c.x;
 
+//volume of each tetrahedron
 		volume += (a.x * new_vector_YZ + a.y * new_vector_XZ + a.z * new_vector_XY)/6.0;
 	}
 	return volume;
@@ -109,22 +135,27 @@ double volume_calc(STL_model *model)
 
 int main(int argc, char **argv)
 {
-if (argc != 2)
+	if (argc != 2)
 	{
 		fprintf(stderr, "Missing name of file\n");
 		fprintf(stdout, "Should look like this\n%s (absolute way to file)\n", argv[0]);
 		return -1;
 	}
-STL_model *model = load_binary_model(argv[1]);
-if (model == NULL)
-	return -1;
-double volume = volume_calc(model);
-printf("Volume is %f\n", volume);
-printf("There are %u triangles\n", model->triangle_count);
-free(model->triangles);
-free(model);
-return 0;
 
+//load model + error if it doesnt load
+	STL_model *model = load_binary_model(argv[1]);
+	if (model == NULL)
+		return -1;
+
+//calculating a printing results
+	double volume = volume_calc(model);
+	printf("Volume is %f\n", volume);
+	printf("There are %u triangles\n", model->triangle_count);
+
+//we dont want memory leak
+	free(model->triangles);
+	free(model);
+	return 0;
 }
 
 
