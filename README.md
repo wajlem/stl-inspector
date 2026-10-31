@@ -36,9 +36,9 @@ Lightweight program written in C to check exported 3D model .stl file
 ## Example output
 
 $ ./script tests/torus.stl
-    Volume is 58.376444
-    There are 2304 triangles
-    Lenght X: 8.000000
+-   Volume is 58.376444
+-   There are 2304 triangles
+-   Lenght X: 8.000000
 
 ## Limitations
 
