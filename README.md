@@ -1,6 +1,6 @@
-# STL-Inspector (3D meshesh, optimalization, physical value)
+# STL-Inspector
 
-Lightweight pogram written in C to check exported 3D model .stl file
+Lightweight program written in C to check exported 3D model .stl file
 
 |       To-Do List      |     Tracker    |
 |-----------------------|----------------|
