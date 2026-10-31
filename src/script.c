@@ -189,7 +189,8 @@ double surface_calc(STL_model *model)
 		vector a = model->triangles[i].v1;
 		vector b = model->triangles[i].v2;
 		vector c = model->triangles[i].v3;
-		
+
+//edges of triangles		
 		double b_a_x = (double)(b.x - a.x);
 		double b_a_y = (double)(b.y - a.y);
 		double b_a_z = (double)(b.z - a.z);		
@@ -198,13 +199,55 @@ double surface_calc(STL_model *model)
 		double c_a_y = (double)(c.y - a.y);
 		double c_a_z = (double)(c.z - a.z);		
 
+//normal vectors
 		double cross_x = (double)(b_a_y*c_a_z - b_a_z*c_a_y);
 		double cross_y = (double)(b_a_z*c_a_x - b_a_x*c_a_z);
 		double cross_z = (double)(b_a_x*c_a_y - b_a_y*c_a_x);
 		
-		surface_area += sqrt(cross_x*cross_x + cross_y*cross_y + cross_z*cross_z);
+		surface_area += sqrt(cross_x*cross_x + cross_y*cross_y + cross_z*cross_z)/2;
 	}
 	return surface_area;
+}
+
+
+double overhang_calc(STL_model *model, double limit_angle)
+{
+	double overhang_area = 0.0;
+
+//from degree to radians
+	double limit = -cos(limit_angle * M_PI / 180.0);
+
+	for (uint32_t i = 0; i < model->triangle_count; i++)
+	{
+		vector a = model->triangles[i].v1;
+		vector b = model->triangles[i].v2;
+		vector c = model->triangles[i].v3;
+
+//two edges of the triangle
+		double b_a_x = (double)b.x - a.x;
+		double b_a_y = (double)b.y - a.y;
+		double b_a_z = (double)b.z - a.z;
+
+		double c_a_x = (double)c.x - a.x;
+		double c_a_y = (double)c.y - a.y;
+		double c_a_z = (double)c.z - a.z;
+
+//normal vector 
+		double cross_x = b_a_y * c_a_z - b_a_z * c_a_y;
+		double cross_y = b_a_z * c_a_x - b_a_x * c_a_z;
+		double cross_z = b_a_x * c_a_y - b_a_y * c_a_x;
+
+		double len = sqrt(cross_x * cross_x + cross_y * cross_y + cross_z * cross_z);
+
+//triangle with zero area, skip it (divide by 0)
+		if (len == 0.0)
+			continue;
+
+//unit normal z component = cross_z / len
+		if (cross_z / len < limit)
+			overhang_area += len / 2.0;
+	}
+	return overhang_area;
 }
 
 int main(int argc, char **argv)
@@ -221,7 +264,6 @@ int main(int argc, char **argv)
 	if (model == NULL)
 		return -1;
 
-//calculating a printing results
 	double volume = volume_calc(model);
 	printf("Volume is %f\n\n", volume);
 	printf("There are %u triangles\n\n", model->triangle_count);
@@ -232,6 +274,11 @@ int main(int argc, char **argv)
 
 	double surface_area = surface_calc(model);
 	printf("Surface ares is %f\n", surface_area);
+
+	double overhang = overhang_calc(model, 45.0);
+//how much triangles are looking into z (can call it ground surface)
+//first print is all triangles looking into ground, second % against surface
+	printf("Overhang area (45 deg): %f (%.1f%% of surface)\n", overhang, 100.0 * overhang / surface_area);
 
 //we dont want memory leak
 	free(model->triangles);
