@@ -181,6 +181,32 @@ bounding_box bounding_box_calc(STL_model *model)
 	return box;
 }
 
+double surface_calc(STL_model *model)
+{
+	double surface_area = 0.0;
+	for (uint32_t i = 0; i < model->triangle_count; i++)
+	{
+		vector a = model->triangles[i].v1;
+		vector b = model->triangles[i].v2;
+		vector c = model->triangles[i].v3;
+		
+		double b_a_x = (double)(b.x - a.x);
+		double b_a_y = (double)(b.y - a.y);
+		double b_a_z = (double)(b.z - a.z);		
+
+		double c_a_x = (double)(c.x - a.x);
+		double c_a_y = (double)(c.y - a.y);
+		double c_a_z = (double)(c.z - a.z);		
+
+		double cross_x = (double)(b_a_y*c_a_z - b_a_z*c_a_y);
+		double cross_y = (double)(b_a_z*c_a_x - b_a_x*c_a_z);
+		double cross_z = (double)(b_a_x*c_a_y - b_a_y*c_a_x);
+		
+		surface_area += sqrt(cross_x*cross_x + cross_y*cross_y + cross_z*cross_z);
+	}
+	return surface_area;
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2)
@@ -202,8 +228,10 @@ int main(int argc, char **argv)
 
 // max - min --> cuz stl can be in negative coordinates
 	bounding_box box = bounding_box_calc(model);
-	printf("Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n", (fabs)(box.max.x - box.min.x), (fabs)(box.max.y - box.min.y), (fabs)(box.max.z - box.min.z));
+	printf("Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n\n", (fabs)(box.max.x - box.min.x), (fabs)(box.max.y - box.min.y), (fabs)(box.max.z - box.min.z));
 
+	double surface_area = surface_calc(model);
+	printf("Surface ares is %f\n", surface_area);
 
 //we dont want memory leak
 	free(model->triangles);

@@ -8,7 +8,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Triangle Count        | :green_circle: |
 | Bounding Box          | :green_circle: |
 | Physical Dimensions   | :red_circle:   |
-| Surface Area          | :red_circle:   |
+| Surface Area          | :green_circle: |
 | Center of Mass        | :red_circle:   |
 | Watertight Check      | :red_circle:   |
 | Overhang Detection    | :red_circle:   |
