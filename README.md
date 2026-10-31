@@ -6,7 +6,7 @@ Lightweight pogram written in C to check exported 3D model .stl file
 |-----------------------|----------------|
 | Volume                | :green_circle: |
 | Triangle Count        | :green_circle: |
-| Bounding Box          | :red_circle:   |
+| Bounding Box          | :green_circle: |
 | Physical Dimensions   | :red_circle:   |
 | Surface Area          | :red_circle:   |
 | Center of Mass        | :red_circle:   |
@@ -14,5 +14,5 @@ Lightweight pogram written in C to check exported 3D model .stl file
 | Overhang Detection    | :red_circle:   |
 ### use
 - git clone https://github.com/wajlem/stl-inspector
-- ./gcc script.c -o script
+- ./gcc script.c -o script -lm
 - ./script "absolute way to file"
