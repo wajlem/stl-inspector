@@ -39,9 +39,10 @@ $ ./script tests/torus.stl
 -   Volume is 58.376444
 -   There are 2304 triangles
 -   Lenght X: 8.000000
+-   ...
 
 ## Limitations
 
-- binary STL only (ASCII is not supported yet)
+- binary STL only
 - volume is correct only for watertight models
 - overhang does not distinguish surface lying on the print bed
