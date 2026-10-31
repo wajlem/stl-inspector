@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 
 /*
 STL format is:
@@ -140,7 +141,7 @@ typedef struct
 	vector max;
 } bounding_box;
 
-bounding_box bounging_box_calc(STL_model *model)
+bounding_box bounding_box_calc(STL_model *model)
 {
 //adding box with 2 vector
 	bounding_box box = {model->triangles[0].v1, model->triangles[0].v1};
@@ -176,14 +177,8 @@ bounding_box bounging_box_calc(STL_model *model)
 		box.max.z = fmaxf(box.max.z, a.z);
 		box.max.z = fmaxf(box.max.z, b.z);
 		box.max.z = fmaxf(box.max.z, c.z);
-
-
-
 	}
-
-
-
-
+	return box;
 }
 
 int main(int argc, char **argv)
@@ -204,6 +199,11 @@ int main(int argc, char **argv)
 	double volume = volume_calc(model);
 	printf("Volume is %f\n", volume);
 	printf("There are %u triangles\n", model->triangle_count);
+
+//
+	bounding_box box = bounding_box_calc(model);
+	printf("Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n", (box.max.x - box.min.x), (box.max.y - box.min.y), (box.max.z - box.min.z));
+
 
 //we dont want memory leak
 	free(model->triangles);
