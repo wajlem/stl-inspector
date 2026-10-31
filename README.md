@@ -24,7 +24,24 @@ Lightweight program written in C to check exported 3D model .stl file
 | Mesh Density          | :red_circle:   |
 | Header Info           | :red_circle:   |
 
-### use
+## Build
+
 - git clone https://github.com/wajlem/stl-inspector
-- ./gcc script.c -o script -lm
-- ./script "absolute way to file"
+- gcc -std=gnu99 src/script.c -lm -o script
+
+## Usage
+
+- ./script path/to/model.stl
+
+## Example output
+
+$ ./script tests/torus.stl
+    Volume is 58.376444
+    There are 2304 triangles
+    Lenght X: 8.000000
+
+## Limitations
+
+- binary STL only (ASCII is not supported yet)
+- volume is correct only for watertight models
+- overhang does not distinguish surface lying on the print bed
