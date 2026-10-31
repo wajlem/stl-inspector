@@ -252,12 +252,15 @@ double overhang_calc(STL_model *model, double limit_angle)
 
 int main(int argc, char **argv)
 {
+
 	if (argc != 2)
 	{
 		fprintf(stderr, "Missing name of file\n");
-		fprintf(stdout, "Should look like this\n%s (absolute way to file)\n", argv[0]);
+		fprintf(stdout, "Should look like this\n%s /path/to/model.stl\n", argv[0]);
 		return -1;
 	}
+
+
 
 //load model + error if it doesnt load
 	STL_model *model = load_binary_model(argv[1]);
@@ -278,8 +281,12 @@ int main(int argc, char **argv)
 	double overhang = overhang_calc(model, 45.0);
 //how much triangles are looking into z (can call it ground surface)
 //first print is all triangles looking into ground, second % against surface
-	printf("Overhang area (45 deg): %f (%.1f%% of surface)\n", overhang, 100.0 * overhang / surface_area);
+	printf("Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
 
+	printf("Header: %.80s\n\n", model->header);
+
+	if (volume < 0)
+		printf("Negative value! Triangles are flipped inside out\n\n");
 //we dont want memory leak
 	free(model->triangles);
 	free(model);
