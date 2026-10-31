@@ -3,7 +3,7 @@
 Lightweight pogram written in C to check exported 3D model .stl file for:
 ## to-do list
 |       To-Do List      |     Tracker    |
-|----------------------:|----------------|
+|-----------------------|----------------|
 | Volume                | :green_circle: |
 | Triangle Count        | :green_circle: |
 | Bounding Box          | :red_circle:   |
@@ -13,6 +13,6 @@ Lightweight pogram written in C to check exported 3D model .stl file for:
 | Watertight Check      | :red_circle:   |
 | Overhang Detection    | :red_circle:   |
 ### use
-git clone https://github.com/wajlem/stl-inspector
-./gcc script.c -o script
-./script "absolute way to file"
+- git clone https://github.com/wajlem/stl-inspector
+- ./gcc script.c -o script
+- ./script "absolute way to file"
