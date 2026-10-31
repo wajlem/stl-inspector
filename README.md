@@ -2,11 +2,6 @@
 
 Lightweight program written in C to check exported 3D model .stl file
 
-<<<<<<< HEAD
-Lightweight pogram written in C to check exported 3D model .stl file 
-## to-do list
-=======
->>>>>>> ded9d2f6690fd6994f93439856d2494915b84d34
 |       To-Do List      |     Tracker    |
 |-----------------------|----------------|
 | Volume                | :green_circle: |
