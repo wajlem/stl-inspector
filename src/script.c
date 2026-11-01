@@ -250,6 +250,8 @@ double overhang_calc(STL_model *model, double limit_angle)
 	return overhang_area;
 }
 
+
+
 int main(int argc, char **argv)
 {
 
@@ -287,6 +289,21 @@ int main(int argc, char **argv)
 
 	if (volume < 0)
 		printf("Negative value! Triangles are flipped inside out\n\n");
+
+
+//layers for 3D print are commonly 0,2mm
+	double layer_height = 0.2;
+	double height = box.max.z - box.min.z;
+	printf("Layers: %i (cut is %fmm)\n\n", (int)(height/layer_height), layer_height);
+
+//mesh density
+	printf("Mesh density: %f triangles per unit*unit\n\n", (model->triangle_count/surface_area));
+
+//weight - assuming model is in mm
+	double density = 7.85; //steel grams/cm^3
+	double weight = (fabs(volume)/1000.0) * density;
+	printf("Weight is %f g, Material: Steel\n\n", weight);
+
 //we dont want memory leak
 	free(model->triangles);
 	free(model);
