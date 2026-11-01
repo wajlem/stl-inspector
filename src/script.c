@@ -4,6 +4,12 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
+#include <sys/stat.h>
+
+#define BASE_DIR "stl-inspector"
+
+
 /*
 STL format is:
 80 bytes (text)
@@ -287,12 +293,109 @@ bool is_watertight(STL_model *model)
 	return true;
 }
 
+void print_report(FILE *out, STL_model *model, bool water, bool header)
+{
+	if(header)
+		fprintf(out, "Header: %.80s\n\n", model->header);
+
+	double volume = volume_calc(model);
+	fprintf(out, "Volume is %f\n\n", volume);
+	fprintf(out, "There are %u triangles\n\n", model->triangle_count);
+
+	bounding_box box = bounding_box_calc(model);
+	fprintf(out, "Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n\n", (fabs)(box.max.x - box.min.x), (fabs)(box.max.y - box.min.y), (fabs)(box.max.z - box.min.z));
+
+	double surface_area = surface_calc(model);
+	fprintf(out, "Surface ares is %f\n", surface_area);
+
+	double overhang = overhang_calc(model, 45.0);
+	fprintf(out, "Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
+
+	if (volume < 0)
+		fprintf(out, "Negative value! Triangles are flipped inside out\n\n");
+
+	double layer_height = 0.2;
+	double height = box.max.z - box.min.z;
+	fprintf(out, "Layers: %i (cut is %fmm)\n\n", (int)(height / layer_height), layer_height);
+
+	fprintf(out, "Mesh density: %f triangles per unit*unit\n\n", (model->triangle_count / surface_area));
+
+	double density = 7.85;
+	double weight = (fabs(volume) / 1000.0) * density;
+	fprintf(out, "Weight is %f g, Material: Steel\n\n", weight);
+
+	if(water)
+	{
+		if (is_watertight(model))
+			fprintf(out, "Model is watertight\n\n");
+		else
+			fprintf(out, "Model is not watertight, volume can be dishonest\n\n");
+	}
+}
+
+//saves the full report to ~/BASE_DIR/output/output-modelName-date_time.txt
+//returns 0 on success, -1 on error
+int export_report(STL_model *model, char *model_path, bool water, bool header)
+{
+	char *home = getenv("HOME");
+	if (home == NULL)
+	{
+		fprintf(stderr, "HOME is not set\n");
+		return -1;
+	}
+
+//model name = file name without folders and without .stl
+	char *name = strrchr(model_path, '/');
+	if (name == NULL)
+		name = model_path;
+	else
+		name++;
+
+	char model_name[200];
+	snprintf(model_name, sizeof(model_name), "%s", name);
+
+	char *dot = strrchr(model_name, '.');
+	if (dot != NULL)
+		*dot = '\0';
+
+//date and time, e.g. 2026-11-01_12-30-05
+	time_t now = time(NULL);
+	char stamp[32];
+	strftime(stamp, sizeof(stamp), "%Y-%m-%d_%H-%M-%S", localtime(&now));
+
+//create folders if they dont exist (error is ignored, fopen will tell if it failed)
+	char folder[512];
+	snprintf(folder, sizeof(folder), "%s/%s", home, BASE_DIR);
+	mkdir(folder, 0755);
+	snprintf(folder, sizeof(folder), "%s/%s/output", home, BASE_DIR);
+	mkdir(folder, 0755);
+
+//full path of the output file
+	char path[1024];
+	snprintf(path, sizeof(path), "%s/output-%s-%s.txt", folder, model_name, stamp);	
+	snprintf(path, sizeof(path), "%s/output-%s-%s.txt", folder, model_name, stamp);
+
+	FILE *out = fopen(path, "w");
+	if (out == NULL)
+	{
+		fprintf(stderr, "Cannot create file %s\n", path);
+		return -1;
+	}
+
+	print_report(out, model, water, header);
+	fclose(out);
+
+	printf("Report saved to %s\n", path);
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 
 	char *file_path = argv[1];
 	bool water = false;
 	bool header = false;
+	bool export = false;
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -300,7 +403,10 @@ int main(int argc, char **argv)
 			water = true;
 		if (strcmp(argv[i], "-header") == 0)
 			header = true;
+		if (strcmp(argv[i], "-export") == 0)
+			export = true;
 	}
+
 
 
 
@@ -309,53 +415,20 @@ int main(int argc, char **argv)
 	if (model == NULL)
 		return -1;
 
-	if (water || header)
+	if (!export)
+		print_report(stdout, model, water, header);
+
+
+//export is always the full report
+	if (export)
 	{
-		if (header)
-			printf("Header: %.80s\n\n", model->header);
-		if (water)
+		if (export_report(model, file_path, water, header) != 0)
 		{
-			if (is_watertight(model))
-				printf("Model is watertight\n\n");
-			else
-				printf("Model is not watertight, volume can be dishonest\n\n");
+			free(model->triangles);
+			free(model);
+			return -1;
 		}
 	}
-
-
-	double volume = volume_calc(model);
-	printf("Volume is %f\n\n", volume);
-	printf("There are %u triangles\n\n", model->triangle_count);
-
-// max - min --> cuz stl can be in negative coordinates
-	bounding_box box = bounding_box_calc(model);
-	printf("Lenght X: %f\nLenght Y: %f\nLenght Z: %f\n\n", (fabs)(box.max.x - box.min.x), (fabs)(box.max.y - box.min.y), (fabs)(box.max.z - box.min.z));
-
-	double surface_area = surface_calc(model);
-	printf("Surface ares is %f\n", surface_area);
-
-	double overhang = overhang_calc(model, 45.0);
-//how much triangles are looking into z (can call it ground surface)
-//first print is all triangles looking into ground, second % against surface
-	printf("Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
-
-//neg volume
-	if (volume < 0)
-		printf("Negative value! Triangles are flipped inside out\n\n");
-
-
-//layers for 3D print are commonly 0,2mm
-	double layer_height = 0.2;
-	double height = box.max.z - box.min.z;
-	printf("Layers: %i (cut is %fmm)\n\n", (int)(height/layer_height), layer_height);
-
-//mesh density
-	printf("Mesh density: %f triangles per unit*unit\n\n", (model->triangle_count/surface_area));
-
-//weight - assuming model is in mm
-	double density = 7.85; //steel grams/cm^3
-	double weight = (fabs(volume)/1000.0) * density;
-	printf("Weight is %f g, Material: Steel\n\n", weight);
 
 
 //we dont want memory leak
