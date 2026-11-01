@@ -9,7 +9,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Bounding Box        | Stability Check       |
 | Surface Area        | Duplicate Triangles   |
 | Watertight Check    | Thin Wall Detection   |
-| Overhang Detection  | Makefile              |
+| Overhang Detection  |
 | Weight Estimate     |
 | Negative Volume     |
 | Layer Count         |
@@ -17,11 +17,13 @@ Lightweight program written in C to check exported 3D model .stl file
 | Export Report       |
 | Mesh Density        |
 | Header Info         |
+| Makefile            |
 
 ## Build
 
-- git clone https://github.com/wajlem/stl-inspector
-- gcc -std=gnu99 src/stl-inspector.c -lm -o stl-inspector
+$ git clone https://github.com/wajlem/stl-inspector
+$ cd ~/stl-inspector
+$ make 
 
 ## Usage
 
