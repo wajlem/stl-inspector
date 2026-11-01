@@ -9,7 +9,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Bounding Box          | :green_circle: |
 | Surface Area          | :green_circle: |
 | Center of Mass        | :red_circle:   |
-| Watertight Check      | :red_circle:   |
+| Watertight Check      | :green_circle: |
 | Overhang Detection    | :green_circle: |
 | Weight Estimate       | :green_circle: |
 | File Validation       | :red_circle:   |
@@ -18,7 +18,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Layer Count           | :green_circle: |
 | Duplicate Triangles   | :red_circle:   |
 | Thin Wall Detection   | :red_circle:   |
-| Command Options       | :red_circle:   |
+| Command Options       | :green_circle: |
 | Export Report         | :red_circle:   |
 | Makefile              | :red_circle:   |
 | Mesh Density          | :green_circle: |
@@ -40,6 +40,14 @@ $ ./script tests/torus.stl
 -   There are 2304 triangles
 -   Lenght X: 8.000000
 -   ...
+
+## Command options
+- -water
+- -header
+
+$ ./script path/to/model.stl -header
+- Model is watertight
+- ...
 
 ## Limitations
 
