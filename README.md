@@ -7,7 +7,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Volume              | Center of Mass        |
 | Triangle Count      | Thin Wall Detection   |
 | Bounding Box        | Stability Check       |
-| Surface Area        | Duplicate Triangles   |
+| Surface Area        |
 | Watertight Check    |
 | Overhang Detection  |
 | Weight Estimate     |
@@ -19,6 +19,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Header Info         |
 | Makefile            |
 | File Validation     |
+| Duplicate Triangles |
 
 ## Build
 
@@ -43,6 +44,7 @@ $ ./stl-inspector path/to/torus.stl -water -header
 - -water "print out watertightness check"
 - -header "print out firt 80 bytes of text"
 - -export "print out all parameters in .txt"
+- -duplicate "print out duplicate triangle check"
 - --help or -h
 ## Limitations
 
