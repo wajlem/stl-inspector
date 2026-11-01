@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-
+#include <stdbool.h>
+#include <string.h>
 /*
 STL format is:
 80 bytes (text)
@@ -250,7 +251,41 @@ double overhang_calc(STL_model *model, double limit_angle)
 	return overhang_area;
 }
 
+//checking how many triangles share same corner
+int shared_corner(triangle *tri1, triangle *tri2)
+{
+	vector *a = &tri1->v1;
+	vector *b = &tri2->v1;
+	int shared = 0;
 
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (memcmp(&a[i], &b[j], sizeof(vector)) == 0)
+				shared++;
+		}
+	}
+	return shared;
+}
+
+//checking if every triangle shares corners with other triangles
+bool is_watertight(STL_model *model)
+{
+	for (uint32_t i = 0; i < model->triangle_count; i++)
+	{
+		int neighbours = 0;
+	
+		for(uint32_t j = 0; j < model->triangle_count; j++)
+		{
+			if (shared_corner(&model->triangles[i], &model->triangles[j]) == 2)
+				neighbours++;
+		}
+		if (neighbours != 3)
+			return false;
+	}
+	return true;
+}
 
 int main(int argc, char **argv)
 {
@@ -285,8 +320,9 @@ int main(int argc, char **argv)
 //first print is all triangles looking into ground, second % against surface
 	printf("Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
 
+//header
 	printf("Header: %.80s\n\n", model->header);
-
+//neg volume
 	if (volume < 0)
 		printf("Negative value! Triangles are flipped inside out\n\n");
 
@@ -303,6 +339,12 @@ int main(int argc, char **argv)
 	double density = 7.85; //steel grams/cm^3
 	double weight = (fabs(volume)/1000.0) * density;
 	printf("Weight is %f g, Material: Steel\n\n", weight);
+
+//watertight check
+	if (!is_watertight(model))
+		printf("Model is not watertight, volume can be dishonest\n\n");
+	if (is_watertight(model))
+		printf("Model is watertight\n\n");
 
 //we dont want memory leak
 	free(model->triangles);
