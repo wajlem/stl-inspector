@@ -10,14 +10,14 @@ Lightweight program written in C to check exported 3D model .stl file
 | Surface Area        | Duplicate Triangles   |
 | Watertight Check    | Thin Wall Detection   |
 | Overhang Detection  | Makefile              |
-| Waight Estimate     |-----------------------|
+| Weight Estimate     |
 | Negative Volume     |
 | Layer Count         |
 | Command Options     |
 | Export Report       |
 | Mesh Density        |
 | Header Info         |
-|---------------------|
+
 ## Build
 
 - git clone https://github.com/wajlem/stl-inspector
