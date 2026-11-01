@@ -5,7 +5,7 @@ Lightweight program written in C to check exported 3D model .stl file
 |  Done :green_circle:| Planned :red_circle:  |
 |---------------------|-----------------------|
 | Volume              | Center of Mass        |
-| Trinangle Count     | File Validation       |
+| Triangle Count      | File Validation       |
 | Bounding Box        | Stability Check       |
 | Surface Area        | Duplicate Triangles   |
 | Watertight Check    | Thin Wall Detection   |
@@ -40,7 +40,7 @@ $ ./stl-inspector path/to/torus.stl -water -header
 
 ## Command options
 - -water "print out watertightness check"
-- -header "print out firt 10 bytes of text"
+- -header "print out firt 80 bytes of text"
 - -export "print out all parameters in .txt"
 
 ## Limitations
