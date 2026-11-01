@@ -411,6 +411,12 @@ void print_help(char *program_name)
 int main(int argc, char **argv)
 {
 
+	if (argc < 2)
+	{
+		print_help(argv[0]);
+		return -1;
+	}
+
 	char *file_path = argv[1];
 	bool water = false;
 	bool header = false;
