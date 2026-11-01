@@ -42,7 +42,7 @@ $ ./stl-inspector path/to/torus.stl -water -header
 - -water "print out watertightness check"
 - -header "print out firt 80 bytes of text"
 - -export "print out all parameters in .txt"
-
+- --help or -h
 ## Limitations
 
 - binary STL only
