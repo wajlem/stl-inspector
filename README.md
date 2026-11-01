@@ -27,26 +27,25 @@ Lightweight program written in C to check exported 3D model .stl file
 ## Build
 
 - git clone https://github.com/wajlem/stl-inspector
-- gcc -std=gnu99 src/script.c -lm -o script
+- gcc -std=gnu99 src/stl-inspector.c -lm -o stl-inspector
 
 ## Usage
 
-- ./script path/to/model.stl
+- ./stl-inspector path/to/model.stl
 
 ## Example output
 
-$ ./script path/to/torus.stl -water -header
+$ ./stl-inspector path/to/torus.stl -water -header
 -   Header: Torus build for test
 -   Model is watertight
 -   Volume is 58.376444
 -   There are 2304 triangles
--   Lenght X: 8.000000
 -   ...
 
 ## Command options
-- -water
-- -header
-- -export
+- -water "print out watertightness check"
+- -header "print out firt 10 bytes of text"
+- -export "print out all parameters in .txt"
 
 ## Limitations
 
