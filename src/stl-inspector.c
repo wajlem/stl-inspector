@@ -443,7 +443,7 @@ bool file_validation(char *file_path)
 //cannot be opened
 	if(f == NULL)
 	{
-		fprintf(stderr, "Error: file %s cannot be opened\n");
+		fprintf(stderr, "Error: file %s cannot be opened\n", file_path);
 		return false;
 	}
 	
