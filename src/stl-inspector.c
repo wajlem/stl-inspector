@@ -390,6 +390,24 @@ int export_report(STL_model *model, char *model_path, bool water, bool header)
 	return 0;
 }
 
+void print_help(char *program_name)
+{
+	printf("STL Inspector - Fast CLI tool for binary STL file analysis\n\n");
+	printf("Usage:\n");
+	printf("  %s <file.stl> [options]\n\n", program_name);
+	printf("Options:\n");
+	printf("  -water       Check if the mesh is watertight (closed, no holes)\n");
+	printf("               Note: slower on high-polygon models\n");
+	printf("  -header      Display raw 80-byte STL header\n");
+	printf("  -export      Save detailed report to ~/stl-inspector/output/\n");
+	printf("  -h, --help   Display this help message\n\n");
+	printf("Example:\n");
+	printf("  %s model.stl -water -export\n", program_name);
+
+
+}
+
+
 int main(int argc, char **argv)
 {
 
@@ -397,6 +415,7 @@ int main(int argc, char **argv)
 	bool water = false;
 	bool header = false;
 	bool export = false;
+	bool help = false;
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -406,9 +425,15 @@ int main(int argc, char **argv)
 			header = true;
 		if (strcmp(argv[i], "-export") == 0)
 			export = true;
+		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
+			help = true;
 	}
 
-
+	if (help)
+	{
+		print_help(argv[0]);
+		return 0;
+	}
 
 
 //load model + error if it doesnt load
