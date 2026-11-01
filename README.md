@@ -5,10 +5,10 @@ Lightweight program written in C to check exported 3D model .stl file
 |  Done :green_circle:| Planned :red_circle:  |
 |---------------------|-----------------------|
 | Volume              | Center of Mass        |
-| Triangle Count      | File Validation       |
+| Triangle Count      | Thin Wall Detection   |
 | Bounding Box        | Stability Check       |
 | Surface Area        | Duplicate Triangles   |
-| Watertight Check    | Thin Wall Detection   |
+| Watertight Check    |
 | Overhang Detection  |
 | Weight Estimate     |
 | Negative Volume     |
@@ -18,6 +18,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Mesh Density        |
 | Header Info         |
 | Makefile            |
+| File Validation     |
 
 ## Build
 
