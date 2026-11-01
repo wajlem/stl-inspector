@@ -21,9 +21,9 @@ Lightweight program written in C to check exported 3D model .stl file
 
 ## Build
 
-$ git clone https://github.com/wajlem/stl-inspector
-$ cd ~/stl-inspector
-$ make 
+- $ git clone https://github.com/wajlem/stl-inspector
+- $ cd ~/stl-inspector
+- $ make 
 
 ## Usage
 
