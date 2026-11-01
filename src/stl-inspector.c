@@ -295,8 +295,27 @@ bool is_watertight(STL_model *model)
 	return true;
 }
 
+bool duplicate_triangles(STL_model *model)
+{
+	uint32_t count = 0;
+	for (uint32_t i = 0; i < model->triangle_count; i++)
+	{
+// j = i+1 --> so no triangle checks with it self
+		for (uint32_t j = i + 1; j < model->triangle_count; j++)
+		{
+			if (shared_corner(&model->triangles[i], &model->triangles[j]) == 3)	
+				count++;
+		}
+	}
+	if (count == 0)
+		return false;
+	else
+		return true;
+}
+
+
 //prints whole report
-void print_report(FILE *out, STL_model *model, bool water, bool header)
+void print_report(FILE *out, STL_model *model, bool water, bool header, bool duplicate)
 {
 	if(header)
 		fprintf(out, "Header: %.80s\n\n", model->header);
@@ -323,7 +342,7 @@ void print_report(FILE *out, STL_model *model, bool water, bool header)
 
 	fprintf(out, "Mesh density: %f triangles per unit*unit\n\n", (model->triangle_count / surface_area));
 
-	double density = 7.85;
+	double density = 7.85; //STEEL grams on cm^3
 	double weight = (fabs(volume) / 1000.0) * density;
 	fprintf(out, "Weight is %f g, Material: Steel\n\n", weight);
 
@@ -334,11 +353,18 @@ void print_report(FILE *out, STL_model *model, bool water, bool header)
 		else
 			fprintf(out, "Model is not watertight, volume can be dishonest\n\n");
 	}
+	if (duplicate)
+	{
+		if (!duplicate_triangles(model))
+			fprintf(out, "Model has no duplicate triangles\n\n");
+		else
+			fprintf(out, "Model has duplicate triangles\n\n");
+	}
 }
 
 //saves the full report to ~/BASE_DIR/output/output-modelName-date_time.txt
 //AI did debug this part cuz I tried very hard and wanted to go get some food
-int export_report(STL_model *model, char *model_path, bool water, bool header)
+int export_report(STL_model *model, char *model_path, bool water, bool header, bool duplicate)
 {
 	char *home = getenv("HOME");
 	if (home == NULL)
@@ -385,7 +411,7 @@ int export_report(STL_model *model, char *model_path, bool water, bool header)
 		return -1;
 	}
 
-	print_report(out, model, water, header);
+	print_report(out, model, water, header, duplicate);
 	fclose(out);
 
 	printf("Report saved to %s\n", path);
@@ -398,10 +424,12 @@ void print_help(char *program_name)
 	printf("Usage:\n");
 	printf("  %s <file.stl> [options]\n\n", program_name);
 	printf("Options:\n");
-	printf("  -water       Check if the mesh is watertight (closed, no holes)\n");
-	printf("               Note: slower on high-polygon models\n");
+	printf("  -water       Check if the mesh is watertight (closed, no holes) !slower on high-poly models\n");
 	printf("  -header      Display raw 80-byte STL header\n");
+//	printf("  -header      Display raw 80-byte STL header\n"); For future commands
+//	printf("  -header      Display raw 80-byte STL header\n");
 	printf("  -export      Save detailed report to ~/stl-inspector/output/\n");
+	printf("  -duplicate   Check if there are duplicate triangles in model !slower on high-poly models\n");
 	printf("  -h, --help   Display this help message\n\n");
 	printf("Example:\n");
 	printf("  %s model.stl -water -export\n", program_name);
@@ -459,6 +487,8 @@ bool file_validation(char *file_path)
 	return true;
 }
 
+
+
 int main(int argc, char **argv)
 {
 
@@ -473,6 +503,7 @@ int main(int argc, char **argv)
 	bool header = false;
 	bool export = false;
 	bool help = false;
+	bool duplicate = false;
 
 
 
@@ -486,6 +517,8 @@ int main(int argc, char **argv)
 			export = true;
 		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
 			help = true;
+		if (strcmp(argv[i], "-duplicate") == 0)
+			duplicate = true;
 	}
 
 	if (help)
@@ -504,13 +537,13 @@ int main(int argc, char **argv)
 		return -1;
 
 	if (!export)
-		print_report(stdout, model, water, header);
+		print_report(stdout, model, water, header, duplicate);
 
 
 //export is always the full report
 	if (export)
 	{
-		if (export_report(model, file_path, water, header) != 0)
+		if (export_report(model, file_path, water, header, duplicate) != 0)
 		{
 			free(model->triangles);
 			free(model);
