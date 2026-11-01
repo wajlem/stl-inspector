@@ -216,7 +216,7 @@ double surface_calc(STL_model *model)
 	return surface_area;
 }
 
-
+//calculating overhang triangles cuz it can affect 3d printing
 double overhang_calc(STL_model *model, double limit_angle)
 {
 	double overhang_area = 0.0;
@@ -293,6 +293,7 @@ bool is_watertight(STL_model *model)
 	return true;
 }
 
+//prints whole report
 void print_report(FILE *out, STL_model *model, bool water, bool header)
 {
 	if(header)
@@ -334,7 +335,7 @@ void print_report(FILE *out, STL_model *model, bool water, bool header)
 }
 
 //saves the full report to ~/BASE_DIR/output/output-modelName-date_time.txt
-//returns 0 on success, -1 on error
+//AI did debug this part cuz I tried very hard and wanted to go get some food
 int export_report(STL_model *model, char *model_path, bool water, bool header)
 {
 	char *home = getenv("HOME");
