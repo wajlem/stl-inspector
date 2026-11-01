@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 
 #define BASE_DIR "stl-inspector"
-
+#define DIFFERENCE 1e-04
 
 /*
 STL format is:
@@ -407,6 +407,55 @@ void print_help(char *program_name)
 
 }
 
+bool file_validation(char *file_path)
+{
+	FILE *f = fopen(file_path, "rb");
+//cannot be opened
+	if(f == NULL)
+	{
+		fprintf(stderr, "Error: file %s cannot be opened\n");
+		return false;
+	}
+	
+	//we need atleast 84 bytes;
+	fseek(f, 0, SEEK_END);
+	long file_size = ftell(f);
+	rewind(f);
+	if (file_size < 84)
+	{
+		fprintf(stderr, "Error: file is too small\n");
+		fclose(f);
+		return false;
+	}
+
+	char header[81];
+	uint32_t count = 0;
+	
+//if header is lower than 80char
+	if (fread(header,1, 80, f) != 80)
+	{
+		fprintf(stderr, "Error while reading header\n");
+		fclose(f);
+		return false;
+	}
+
+//if there are less then two triangle
+	if (fread(&count, sizeof(uint32_t), 1, f) != 1)
+	{
+		fprintf(stderr, "Error while reading triangles\n");
+		return false;
+	}
+
+	fclose(f);
+
+	if (count == 0)
+	{
+		fprintf(stderr, "Error: zero triangles");
+		return false;
+	}
+	
+	return true;
+}
 
 int main(int argc, char **argv)
 {
@@ -422,6 +471,8 @@ int main(int argc, char **argv)
 	bool header = false;
 	bool export = false;
 	bool help = false;
+
+
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -440,6 +491,9 @@ int main(int argc, char **argv)
 		print_help(argv[0]);
 		return 0;
 	}
+
+	if (!file_validation(file_path))
+		return -1;
 
 
 //load model + error if it doesnt load
