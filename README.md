@@ -11,17 +11,17 @@ Lightweight program written in C to check exported 3D model .stl file
 | Center of Mass        | :red_circle:   |
 | Watertight Check      | :red_circle:   |
 | Overhang Detection    | :green_circle: |
-| Weight Estimate       | :red_circle:   |
+| Weight Estimate       | :green_circle: |
 | File Validation       | :red_circle:   |
 | Negative Volume       | :green_circle: |
 | Stability Check       | :red_circle:   |
-| Layer Count           | :red_circle:   |
+| Layer Count           | :green_circle: |
 | Duplicate Triangles   | :red_circle:   |
 | Thin Wall Detection   | :red_circle:   |
 | Command Options       | :red_circle:   |
 | Export Report         | :red_circle:   |
 | Makefile              | :red_circle:   |
-| Mesh Density          | :red_circle:   |
+| Mesh Density          | :green_circle: |
 | Header Info           | :green_circle: |
 
 ## Build
