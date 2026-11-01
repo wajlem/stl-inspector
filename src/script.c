@@ -290,19 +290,38 @@ bool is_watertight(STL_model *model)
 int main(int argc, char **argv)
 {
 
-	if (argc != 2)
+	char *file_path = argv[1];
+	bool water = false;
+	bool header = false;
+
+	for (int i = 0; i < argc; i++)
 	{
-		fprintf(stderr, "Missing name of file\n");
-		fprintf(stdout, "Should look like this\n%s /path/to/model.stl\n", argv[0]);
-		return -1;
+		if (strcmp(argv[i], "-water") == 0)
+			water = true;
+		if (strcmp(argv[i], "-header") == 0)
+			header = true;
 	}
 
 
 
 //load model + error if it doesnt load
-	STL_model *model = load_binary_model(argv[1]);
+	STL_model *model = load_binary_model(file_path);
 	if (model == NULL)
 		return -1;
+
+	if (water || header)
+	{
+		if (header)
+			printf("Header: %.80s\n\n", model->header);
+		if (water)
+		{
+			if (is_watertight(model))
+				printf("Model is watertight\n\n");
+			else
+				printf("Model is not watertight, volume can be dishonest\n\n");
+		}
+	}
+
 
 	double volume = volume_calc(model);
 	printf("Volume is %f\n\n", volume);
@@ -320,8 +339,6 @@ int main(int argc, char **argv)
 //first print is all triangles looking into ground, second % against surface
 	printf("Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
 
-//header
-	printf("Header: %.80s\n\n", model->header);
 //neg volume
 	if (volume < 0)
 		printf("Negative value! Triangles are flipped inside out\n\n");
@@ -340,11 +357,6 @@ int main(int argc, char **argv)
 	double weight = (fabs(volume)/1000.0) * density;
 	printf("Weight is %f g, Material: Steel\n\n", weight);
 
-//watertight check
-	if (!is_watertight(model))
-		printf("Model is not watertight, volume can be dishonest\n\n");
-	if (is_watertight(model))
-		printf("Model is watertight\n\n");
 
 //we dont want memory leak
 	free(model->triangles);
