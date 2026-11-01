@@ -47,6 +47,12 @@ typedef struct
 } STL_model;
 
 
+void free_all(STL_model *i_want_to_break_free, FILE *when_god_closes_the_door)
+{
+	free(i_want_to_break_free);
+	fclose(when_god_closes_the_door);
+}
+
 //loads whole binary model into memory
 STL_model *load_binary_model(char *file_path)
 {
@@ -71,8 +77,7 @@ STL_model *load_binary_model(char *file_path)
 	if (fread(model->header, 1, 80, stl_file) != 80)
   {
   	fprintf(stderr, "Error reading header\n");
-  	free(model);
-  	fclose(stl_file);
+  	free_all(model, stl_file);
   	return NULL;
   }
 
@@ -80,8 +85,7 @@ STL_model *load_binary_model(char *file_path)
 	if (fread(&model->triangle_count, sizeof(uint32_t), 1, stl_file) != 1)
   {
   	fprintf(stderr, "Error reading triangle count\n");
-  	free(model);
-  	fclose(stl_file);
+  	free_all(model,stl_file);	
   	return NULL;
   }
 
@@ -90,8 +94,7 @@ STL_model *load_binary_model(char *file_path)
 	if (model->triangles == NULL)
   {
   	fprintf(stderr, "Memory allocation failed\n");
-  	free(model);
-  	fclose(stl_file);
+		free_all(model, stl_file);  	
   	return NULL;
   }
 
@@ -101,8 +104,7 @@ STL_model *load_binary_model(char *file_path)
   {
   fprintf(stderr, "Error reading triangles\n");
   free(model->triangles);
-  free(model);
-  fclose(stl_file);
+	free_all(model, stl_file);
   return NULL;
   }
 
