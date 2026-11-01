@@ -19,7 +19,7 @@ Lightweight program written in C to check exported 3D model .stl file
 | Duplicate Triangles   | :red_circle:   |
 | Thin Wall Detection   | :red_circle:   |
 | Command Options       | :green_circle: |
-| Export Report         | :red_circle:   |
+| Export Report         | :green_circle: |
 | Makefile              | :red_circle:   |
 | Mesh Density          | :green_circle: |
 | Header Info           | :green_circle: |
@@ -46,6 +46,7 @@ $ ./script path/to/torus.stl -water -header
 ## Command options
 - -water
 - -header
+- -export
 
 ## Limitations
 
