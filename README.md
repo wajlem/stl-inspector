@@ -35,7 +35,9 @@ Lightweight program written in C to check exported 3D model .stl file
 
 ## Example output
 
-$ ./script tests/torus.stl
+$ ./script path/to/torus.stl -water -header
+-   Header: Torus build for test
+-   Model is watertight
 -   Volume is 58.376444
 -   There are 2304 triangles
 -   Lenght X: 8.000000
@@ -44,10 +46,6 @@ $ ./script tests/torus.stl
 ## Command options
 - -water
 - -header
-
-$ ./script path/to/model.stl -water
-- Model is watertight
-- ...
 
 ## Limitations
 
