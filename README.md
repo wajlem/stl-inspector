@@ -45,7 +45,7 @@ $ ./script tests/torus.stl
 - -water
 - -header
 
-$ ./script path/to/model.stl -header
+$ ./script path/to/model.stl -water
 - Model is watertight
 - ...
 
