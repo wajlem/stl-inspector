@@ -45,6 +45,7 @@ $ ./stl-inspector path/to/torus.stl -water -header
 - -header "print out firt 80 bytes of text"
 - -export "print out all parameters in .txt"
 - -duplicate "print out duplicate triangle check"
+- -3dprint "print out layers and price"
 - --help or -h
 ## Limitations
 
