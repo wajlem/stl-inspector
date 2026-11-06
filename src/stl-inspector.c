@@ -315,7 +315,7 @@ bool duplicate_triangles(STL_model *model)
 
 
 //prints whole report
-void print_report(FILE *out, STL_model *model, bool water, bool header, bool duplicate, int density)
+void print_report(FILE *out, STL_model *model, bool water, bool header, bool duplicate, int density, bool _3dprint, int price_per_gram)
 {
 	if(header)
 		fprintf(out, "Header: %.80s\n\n", model->header);
@@ -330,15 +330,19 @@ void print_report(FILE *out, STL_model *model, bool water, bool header, bool dup
 	double surface_area = surface_calc(model);
 	fprintf(out, "Surface ares is %f\n", surface_area);
 
-	double overhang = overhang_calc(model, 45.0);
-	fprintf(out, "Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
 
 	if (volume < 0)
+	{
 		fprintf(out, "Negative value! Triangles are flipped inside out\n\n");
+	}
 
-	double layer_height = 0.2;
-	double height = box.max.z - box.min.z;
-	fprintf(out, "Layers: %i (cut is %fmm)\n\n", (int)(height / layer_height), layer_height);
+		double layer_height = 0.2;
+		double height = box.max.z - box.min.z;
+		fprintf(out, "Layers: %i (cut is %fmm)\n\n", (int)(height / layer_height), layer_height);
+	
+		double overhang = overhang_calc(model, 45.0);
+		fprintf(out, "Overhang area (45 deg): %f (%.1f%% of surface)\n\n", overhang, 100.0 * overhang / surface_area);
+	
 
 	fprintf(out, "Mesh density: %f triangles per unit*unit\n\n", (model->triangle_count / surface_area));
 
@@ -360,11 +364,16 @@ void print_report(FILE *out, STL_model *model, bool water, bool header, bool dup
 		else
 			fprintf(out, "Model has duplicate triangles\n\n");
 	}
-}
 
+	if (_3dprint)
+	{
+		float price = weight/price_per_gram;
+		fprintf(out, "Estimated price is %f\n\n", price);		
+	}
+}
 //saves the full report to ~/BASE_DIR/output/output-modelName-date_time.txt
 //AI did debug this part cuz I tried very hard and wanted to go get some food
-int export_report(STL_model *model, char *model_path, bool water, bool header, bool duplicate, int density)
+int export_report(STL_model *model, char *model_path, bool water, bool header, bool duplicate, int density, bool _3dprint, int price_per_gram)
 {
 	char *home = getenv("HOME");
 	if (home == NULL)
@@ -411,7 +420,7 @@ int export_report(STL_model *model, char *model_path, bool water, bool header, b
 		return -1;
 	}
 
-	print_report(out, model, water, header, duplicate, density);
+	print_report(out, model, water, header, duplicate, density, _3dprint, price_per_gram);
 	fclose(out);
 
 	printf("Report saved to %s\n", path);
@@ -427,7 +436,7 @@ void print_help(char *program_name)
 	printf("  -water       Check if the mesh is watertight (closed, no holes) !slower on high-poly models\n");
 	printf("  -header      Display raw 80-byte STL header\n");
 	printf("Density can be set in main function: default is 0\n");
-//	printf("  -header      Display raw 80-byte STL header\n");
+	printf("  -3dprint     Display total layers - 0,2mm; Display price estemate\n");
 	printf("  -export      Save detailed report to ~/stl-inspector/output/\n");
 	printf("  -duplicate   Check if there are duplicate triangles in model !slower on high-poly models\n");
 	printf("  -h, --help   Display this help message\n\n");
@@ -523,9 +532,10 @@ int main(int argc, char **argv)
 	bool export = false;
 	bool help = false;
 	bool duplicate = false;
-  //SET PARAMETRS
+  bool _3dprint = false;
+	//SET PARAMETRS
   int density = 0; //   grams/cm^cubed
-
+	int price_per_gram = 1; //price of 1g of filament! NO ZERO!
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -539,6 +549,8 @@ int main(int argc, char **argv)
 			help = true;
 		if (strcmp(argv[i], "-duplicate") == 0)
 			duplicate = true;
+		if (strcmp(argv[i], "-3dprint") == 0)
+			_3dprint = true;
 		
 	}
 
@@ -560,13 +572,13 @@ int main(int argc, char **argv)
 	negative_zero_fix(model);
 
 	if (!export)
-		print_report(stdout, model, water, header, duplicate, density);
+		print_report(stdout, model, water, header, duplicate, density, _3dprint, price_per_gram);
 
 
 //export is always the full report
 	if (export)
 	{
-		if (export_report(model, file_path, water, header, duplicate, density) != 0)
+		if (export_report(model, file_path, water, header, duplicate, density, _3dprint, price_per_gram) != 0)
 		{
 			free(model->triangles);
 			free(model);
