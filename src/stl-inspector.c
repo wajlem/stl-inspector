@@ -200,13 +200,13 @@ double surface_calc(STL_model *model)
 		vector c = model->triangles[i].v3;
 
 //edges of triangles		
-		double b_a_x = (double)(b.x - a.x);
-		double b_a_y = (double)(b.y - a.y);
-		double b_a_z = (double)(b.z - a.z);		
+		double b_a_x = (double)b.x - a.x;
+		double b_a_y = (double)b.y - a.y;
+		double b_a_z = (double)b.z - a.z;		
 
-		double c_a_x = (double)(c.x - a.x);
-		double c_a_y = (double)(c.y - a.y);
-		double c_a_z = (double)(c.z - a.z);		
+		double c_a_x = (double)c.x - a.x;
+		double c_a_y = (double)c.y - a.y;
+		double c_a_z = (double)c.z - a.z;		
 
 //normal vectors
 		double cross_x = (double)(b_a_y*c_a_z - b_a_z*c_a_y);
@@ -315,7 +315,7 @@ bool duplicate_triangles(STL_model *model)
 
 
 //prints whole report
-void print_report(FILE *out, STL_model *model, bool water, bool header, bool duplicate)
+void print_report(FILE *out, STL_model *model, bool water, bool header, bool duplicate, int density)
 {
 	if(header)
 		fprintf(out, "Header: %.80s\n\n", model->header);
@@ -342,9 +342,9 @@ void print_report(FILE *out, STL_model *model, bool water, bool header, bool dup
 
 	fprintf(out, "Mesh density: %f triangles per unit*unit\n\n", (model->triangle_count / surface_area));
 
-	double density = 7.85; //STEEL grams on cm^3
+	
 	double weight = (fabs(volume) / 1000.0) * density;
-	fprintf(out, "Weight is %f g, Material: Steel\n\n", weight);
+	fprintf(out, "Weight is %f g\n\n", weight);
 
 	if(water)
 	{
@@ -364,7 +364,7 @@ void print_report(FILE *out, STL_model *model, bool water, bool header, bool dup
 
 //saves the full report to ~/BASE_DIR/output/output-modelName-date_time.txt
 //AI did debug this part cuz I tried very hard and wanted to go get some food
-int export_report(STL_model *model, char *model_path, bool water, bool header, bool duplicate)
+int export_report(STL_model *model, char *model_path, bool water, bool header, bool duplicate, int density)
 {
 	char *home = getenv("HOME");
 	if (home == NULL)
@@ -411,7 +411,7 @@ int export_report(STL_model *model, char *model_path, bool water, bool header, b
 		return -1;
 	}
 
-	print_report(out, model, water, header, duplicate);
+	print_report(out, model, water, header, duplicate, density);
 	fclose(out);
 
 	printf("Report saved to %s\n", path);
@@ -426,7 +426,7 @@ void print_help(char *program_name)
 	printf("Options:\n");
 	printf("  -water       Check if the mesh is watertight (closed, no holes) !slower on high-poly models\n");
 	printf("  -header      Display raw 80-byte STL header\n");
-//	printf("  -header      Display raw 80-byte STL header\n"); For future commands
+	printf("Density can be set in main function: default is 0\n");
 //	printf("  -header      Display raw 80-byte STL header\n");
 	printf("  -export      Save detailed report to ~/stl-inspector/output/\n");
 	printf("  -duplicate   Check if there are duplicate triangles in model !slower on high-poly models\n");
@@ -504,7 +504,8 @@ int main(int argc, char **argv)
 	bool export = false;
 	bool help = false;
 	bool duplicate = false;
-
+  //SET PARAMETRS
+  int density = 0; //   grams/cm^cubed
 
 
 	for (int i = 0; i < argc; i++)
@@ -519,6 +520,7 @@ int main(int argc, char **argv)
 			help = true;
 		if (strcmp(argv[i], "-duplicate") == 0)
 			duplicate = true;
+		
 	}
 
 	if (help)
@@ -537,13 +539,13 @@ int main(int argc, char **argv)
 		return -1;
 
 	if (!export)
-		print_report(stdout, model, water, header, duplicate);
+		print_report(stdout, model, water, header, duplicate, density);
 
 
 //export is always the full report
 	if (export)
 	{
-		if (export_report(model, file_path, water, header, duplicate) != 0)
+		if (export_report(model, file_path, water, header, duplicate, density) != 0)
 		{
 			free(model->triangles);
 			free(model);
