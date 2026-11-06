@@ -487,8 +487,27 @@ bool file_validation(char *file_path)
 	return true;
 }
 
+//-0.0f and 0.0f are different bytes
+void negative_zero_fix(STL_model *model)
+{
+	for (uint32_t i = 0; i < model->triangle_count; i++)
+	{
+		vector *p = &model->triangles[i].v1;
+		for (int j = 0; j < 3; j++)
+		{
+		if (p[j].x == 0.0f)
+			p[j].x = 0.0f;
+		if (p[j].y == 0.0f)
+			p[j].y = 0.0f;
+		if (p[j].z == 0.0f)
+			p[j].z = 0.0f;
+		}
+	}
+}
 
-
+//I hate this program
+//beer_count = 5;
+//seg_fault_count = 21;
 int main(int argc, char **argv)
 {
 
@@ -537,6 +556,8 @@ int main(int argc, char **argv)
 	STL_model *model = load_binary_model(file_path);
 	if (model == NULL)
 		return -1;
+
+	negative_zero_fix(model);
 
 	if (!export)
 		print_report(stdout, model, water, header, duplicate, density);
